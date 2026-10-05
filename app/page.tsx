@@ -1,69 +1,105 @@
-import Image from "next/image";
+import { averageScore, isFlagged, NEED_HUMAN_DECISION } from "@/lib/review";
+import { getReviewResult, getSessionInfo } from "@/lib/review-data";
+import { AnalysisPipeline } from "./_components/analysis-pipeline";
+import { AppHeader } from "./_components/app-header";
+import { AssessorCard } from "./_components/assessor-card";
+import { QuestionList } from "./_components/question-list";
+import { ReviewerNotes } from "./_components/reviewer-notes";
+import { StatCard } from "./_components/ui";
+import { VideoUpload } from "./_components/video-upload";
 
-export default function Home() {
+const REVIEWER_NOTES_ID = "catatan-reviewer";
+
+export default async function Home() {
+  const [review, session] = await Promise.all([getReviewResult(), getSessionInfo()]);
+  const { project: projectFindings, interviews } = review.reviewChecklistResult;
+  const flaggedCount = interviews.scores.filter(isFlagged).length;
+  const average = averageScore(interviews.scores).toLocaleString("id-ID", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+  const studentLabel = `${session.studentName} · NIM ${session.studentId}`;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+    <>
+      <AppHeader courseOptions={session.courseOptions} userInitials={session.reviewerInitials} />
+
+      <main className="flex-1">
+        <section className="bg-white px-6 pb-9 pt-12">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-block rounded-full bg-indigo-50 px-2.5 py-1 text-[11px] font-medium text-indigo-600">
+              Ujian Lisan · Analisis berbasis AI
+            </span>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-[34px]">
+              Seberapa paham mahasiswa terhadap materi?
+            </h1>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-500 sm:text-[15px]">
+              Unggah video penjelasan mahasiswa. Sistem akan mentranskripsi jawaban, menilai
+              pemahaman dengan LLM, menganalisis bahasa non-verbal, dan mendeteksi indikasi
+              kecurangan.
+            </p>
+          </div>
+          <div className="mx-auto mt-6 max-w-[740px]">
+            <VideoUpload
+              initialVideo={{
+                fileName: session.video.fileName,
+                meta: `${studentLabel} · ${session.video.durationLabel} · ${session.video.sizeLabel}`,
+                status: "analyzed",
+              }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-10 sm:px-6">
+          <div className="mx-auto max-w-[1010px] space-y-5">
+            <AssessorCard
+              review={review}
+              subtitle={`${session.studentName} (NIM ${session.studentId}) · ${session.courseName}`}
+              reviewerNotesHref={`#${REVIEWER_NOTES_ID}`}
+            />
+
+            <AnalysisPipeline />
+
+            <div className="grid gap-5 sm:grid-cols-3">
+              <StatCard
+                label="Project"
+                value={review.scoresOverview.project}
+                caption={
+                  projectFindings.length === 0
+                    ? "Checklist project: tidak ada temuan"
+                    : `Checklist project: ${projectFindings.length} temuan`
+                }
+                captionTone={projectFindings.length === 0 ? "success" : "warning"}
+              />
+              <StatCard
+                label="Interview"
+                value={review.scoresOverview.interview}
+                caption={`Rata-rata ${average} dari skala ${interviews.minScore}–${interviews.maxScore} · ${interviews.scores.length} pertanyaan`}
+                captionTone="info"
+              />
+              <StatCard
+                label="Total"
+                value={review.scoresOverview.total}
+                caption={
+                  flaggedCount > 0
+                    ? `${flaggedCount} pertanyaan perlu dicek manual`
+                    : "Tidak ada pertanyaan yang perlu dicek manual"
+                }
+                captionTone={flaggedCount > 0 ? "warning" : "success"}
+              />
+            </div>
+
+            <QuestionList interviews={interviews} />
+
+            <ReviewerNotes
+              id={REVIEWER_NOTES_ID}
+              initialNotes={review.notes}
+              decision={review.decision}
+              notesRequired={review.decision === NEED_HUMAN_DECISION}
+            />
+          </div>
+        </section>
       </main>
-    </div>
+    </>
   );
 }

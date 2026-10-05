@@ -1,0 +1,102 @@
+{
+  "assessorProfile": {
+    "id": 47,
+    "name": "AI Interview Assessor",
+    "photoUrl": "xxx"
+  },
+  "decision": "Need Human",
+  "reviewedAt": "2026-10-03 10:42:15",
+  "scoresOverview": {
+    "project": 100,
+    "interview": 75,
+    "total": 85
+  },
+  "reviewChecklistResult": {
+    "project": [],
+    "interviews": {
+      "minScore": 0,
+      "maxScore": 4,
+      "scores": [
+        {
+          "id": 101,
+          "score": 3,
+          "transcript": "Pohon biner adalah struktur data hierarkis di mana setiap simpul punya paling banyak dua anak, yaitu anak kiri dan anak kanan. Contohnya pohon ekspresi...",
+          "aiAssessment": {
+            "justification": "Definisi tepat dan disertai contoh yang relevan. Belum menyinggung kasus pohon kosong dan istilah daun/simpul internal, sehingga belum mencapai skor penuh.",
+            "cheatingSignals": {
+              "objectDetection": {
+                "hasSuspiciousObject": false,
+                "suspiciousObject": []
+              },
+              "eyeTracking": {
+                "efsPercent": 8.2,
+                "edpPercent": 4.5,
+                "confidence": 0.91,
+                "status": "Normal"
+              }
+            },
+            "speechBehavior": {
+              "wordsPerMinute": 132,
+              "tempo": "Normal",
+              "totalSilenceSec": 6.4,
+              "fillerWordCount": 3
+            }
+          }
+        },
+        {
+          "id": 102,
+          "score": 2,
+          "transcript": "Untuk traversal in-order kita kunjungi kiri, root, lalu kanan... eh, kompleksitasnya O(log n) karena pohonnya dibagi dua terus.",
+          "aiAssessment": {
+            "justification": "Urutan traversal benar, tetapi analisis kompleksitas keliru (seharusnya O(n) karena setiap simpul dikunjungi sekali). Terdeteksi ponsel dan buku di frame, serta pandangan sering keluar layar.",
+            "cheatingSignals": {
+              "objectDetection": {
+                "hasSuspiciousObject": true,
+                "suspiciousObject": ["cell phone", "book"]
+              },
+              "eyeTracking": {
+                "efsPercent": 31.5,
+                "edpPercent": 22.8,
+                "confidence": 0.87,
+                "status": "Suspicious"
+              }
+            },
+            "speechBehavior": {
+              "wordsPerMinute": 98,
+              "tempo": "Lambat",
+              "totalSilenceSec": 18.9,
+              "fillerWordCount": 11
+            }
+          }
+        },
+        {
+          "id": 103,
+          "score": 4,
+          "transcript": "BST adalah pohon biner dengan aturan nilai di subtree kiri selalu lebih kecil dari root dan subtree kanan lebih besar, sehingga pencarian bisa O(log n) jika pohonnya seimbang.",
+          "aiAssessment": {
+            "justification": "Penjelasan lengkap dan akurat, termasuk syarat pohon seimbang untuk kompleksitas O(log n).",
+            "cheatingSignals": {
+              "objectDetection": {
+                "hasSuspiciousObject": false,
+                "suspiciousObject": []
+              },
+              "eyeTracking": {
+                "efsPercent": 6.1,
+                "edpPercent": 3.2,
+                "confidence": 0.93,
+                "status": "Normal"
+              }
+            },
+            "speechBehavior": {
+              "wordsPerMinute": 141,
+              "tempo": "Normal",
+              "totalSilenceSec": 4.8,
+              "fillerWordCount": 2
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": ""
+}
